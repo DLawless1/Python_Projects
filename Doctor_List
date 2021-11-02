@@ -1,0 +1,29 @@
+import pandas as pd
+import re
+
+file_name = r"C:\"
+sheet = "SDB Dental Offices"
+df = pd.read_excel(file_name,sheet_name=sheet)
+
+resultdf = df[pd.notna(df['Partner Doctors'])]
+df1 = resultdf['Partner Doctors']
+trial = []
+for i in df1:
+    trial.append( re.sub(' + ', '|', i))
+
+final = []
+for i in trial:
+    if i.__contains__("|"):
+        i = i.split("|")
+        for j in i:
+            final.append(j)
+    else:
+        final.append(i)
+
+'''final_draft = []
+for i in final:
+    if i not in final_draft:
+        final_draft.append(i)
+print(final_draft)
+'''
+final_draft = list(dict.fromkeys(final))
