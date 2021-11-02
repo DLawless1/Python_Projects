@@ -5,25 +5,36 @@ file_name = r"C:\"
 sheet = "SDB Dental Offices"
 df = pd.read_excel(file_name,sheet_name=sheet)
 
-resultdf = df[pd.notna(df['Partner Doctors'])]
-df1 = resultdf['Partner Doctors']
-trial = []
-for i in df1:
-    trial.append( re.sub(' + ', '|', i))
+columns = ['Partner Doctors','Associate Doctors']
 
-final = []
-for i in trial:
-    if i.__contains__("|"):
-        i = i.split("|")
-        for j in i:
-            final.append(j)
-    else:
-        final.append(i)
+combined_final = []
 
-'''final_draft = []
-for i in final:
-    if i not in final_draft:
-        final_draft.append(i)
-print(final_draft)
-'''
-final_draft = list(dict.fromkeys(final))
+for k in columns:
+    resultdf = df[pd.notna(df[k])]
+    df1 = resultdf[k]
+
+    trial = []
+    for i in df1:
+        trial.append(re.sub(' + ', '|', i))
+
+    final = []
+    for i in trial:
+        if i.__contains__("|"):
+            i = i.split("|")
+            for j in i:
+                final.append(j)
+        else:
+            final.append(i)
+
+    final_draft = list(dict.fromkeys(final))
+    for i in final_draft:
+        if i == 'Multiple':
+            final_draft.remove(i)
+        elif i == '':
+            final_draft.remove(i)
+
+    combined_final.extend(final_draft)
+    print(len(final_draft))
+
+
+combined_final = list(dict.fromkeys(combined_final))
