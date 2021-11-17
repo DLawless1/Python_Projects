@@ -1,0 +1,57 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from statsmodels.tsa.arima.model import ARIMA
+import warnings
+from statsmodels.tsa.ar_model import AutoReg
+from datetime import datetime
+
+
+warnings.filterwarnings("ignore")
+pd.options.mode.chained_assignment = None
+pd.set_option('display.max_columns',500)
+file_name = r"C:\Users\DylanLawless\OneDrive - Specialty Dental Brands\Desktop\PredictiveTrial.xlsx"
+pd.set_option('display.max_columns',500)
+
+def parser(x):
+    return datetime.strptime(x,'%Y-%m')
+
+df = pd.read_excel(file_name,parse_dates=['ledger_date'])
+
+df.ledger_date = pd.to_datetime(df.ledger_date).dt.to_period('M').dt.to_timestamp()
+
+df = df[df['ledger_date']>='2020-09-01']
+df = df[df['ledger_date']<'2021-11-01']
+df.sort_values(by=['ledger_date'])
+
+grouped = df.groupby('ledger_date',as_index=True)['Gross_Production'].sum()
+grouped = grouped.sort_index()
+
+
+#plot_acf(grouped) lag=2
+train = grouped.iloc[:len(grouped)-3]
+test = grouped.iloc[len(grouped)-3:]
+
+model_ar = AutoReg(train,lags=2)
+model_ar_fit = model_ar.fit()
+print(grouped)
+
+predictions = model_ar_fit.predict(start=11,end=13)
+print('AR Forecast\n', predictions)
+
+'''plt.plot(test)
+plt.plot(predictions,color='red')
+plt.show()'''
+
+model_arima = ARIMA(train,order=(2,0,1))
+model_arima_fit = model_arima.fit()
+model_arima_fit.summary()
+print('######' '\n' 'AIC',model_arima_fit.aic, "\n" "#######")
+
+predictions = model_arima_fit.forecast(steps=3)
+print('Arima Predictions\n', predictions)
+
+
+plt.plot(test)
+plt.plot(predictions,color="red")
+plt.show()
