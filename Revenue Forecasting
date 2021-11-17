@@ -10,7 +10,7 @@ from datetime import datetime
 warnings.filterwarnings("ignore")
 pd.options.mode.chained_assignment = None
 pd.set_option('display.max_columns',500)
-file_name = r"C:\Users\DylanLawless\OneDrive - Specialty Dental Brands\Desktop\PredictiveTrial.xlsx"
+file_name = r"C:\\PredictiveTrial.xlsx"
 pd.set_option('display.max_columns',500)
 
 def parser(x):
