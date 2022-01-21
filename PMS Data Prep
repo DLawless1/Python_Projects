@@ -1,0 +1,46 @@
+#### This code transforms our source data to allow us to load into our Data Warehouse. 
+
+
+
+
+pd.options.mode.chained_assignment = None
+pd.set_option('display.max_columns',500)
+
+#### Gets Date ####
+date_format = datetime.now().strftime("%Y%m%d")     #+timedelta(days=-1) # Gets the Current Date and formats it
+
+### File Directory ###
+curve_folder = r"C:\Users\DylanLawless\Specialty Dental Brands\Omoniyi Macaulay - Curve Daily Output Report"
+os.chdir(curve_folder) #Gets the larger directory
+
+roughfolder_names = os.listdir() # lists the subfolders within the larger direcotry
+
+for x in roughfolder_names: #sets us up for a for loop
+    if (x == "Production") or (x == "Collection"):
+
+        if x == "Production":
+            os.chdir(os.path.join(curve_folder,x))
+            file_names = os.listdir()
+            for i in file_names:
+                if i.split("_")[len(i.split("_"))-1].split(".")[0] == date_format: #sees if the date in the filename matches todays date
+                    file_path = os.path.join(os.getcwd(), i)
+                    df = pd.read_csv(file_path) #creates a pandas dataframe
+                    if len(df.columns) < 8: #This splits out the Offices with more than one location, if less than, it's only 1 location, if more, a group with multiple
+                        df["Clinic"] = i.split("_")[0] # adds the clinic column needed for alteryx as well as enters a clinic name
+                    else:
+                        df = df[['Date', 'Description', 'Site', 'Patient', 'Default Dentist', 'Provider of Service', 'Amount', 'Clinic']] #re-arranges the columns for alteryx specifically
+                    df.to_csv(file_path, index=False)
+        elif x == "Collection":
+            os.chdir(os.path.join(curve_folder,x))
+            file_names = os.listdir()
+            for i in file_names:
+                if i.split("_")[len(i.split("_"))-1].split(".")[0] == date_format:
+                    file_path = os.path.join(os.getcwd(), i)
+                    df = pd.read_csv(file_path)  # creates a pandas dataframe
+                    if len(df.columns) < 11:  # This splits out the Offices with more than one location, if less than, it's only 1 location, if more, a group with multiple
+                        df["Clinic"] = i.split("_")[0]  # adds the clinic column needed for alteryx as well as enters a clinic name
+                    else:
+                        df = df[['Date', 'ID', 'Payment Type', 'Ref. ID', 'Transaction Type', 'Payer', 'Responsible Party',
+                                 'RP Profile Tag(s)', 'Provider', 'Amount',
+                                 'Clinic']]  # re-arranges the columns for alteryx specifically
+                    df.to_csv(file_path, index=False)
